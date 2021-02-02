@@ -1,47 +1,24 @@
-import { Container, Col, Row } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import List from "./components/list/List";
+import firebase from "./firebase";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Jumbo from "./components/Jumbo";
-import TutorialForm from "./components/TutorialForm";
-import TutorialsList from "./components/TutorialsList";
-import firebaseDb from "./firebase";
-import { useState, useEffect } from "react";
 
-function App() {
-  //states
-  var [tutorialObjects, setTutorialObjects] = useState({});
-  //end of states
+const App = () => {
+  var [fullObjectList, setFullObjectList] = useState(null);
 
   useEffect(() => {
-    firebaseDb.child("Tutorials/").on("value", (snapshot) => {
-      if (snapshot.val() != null) {
-        setTutorialObjects({ ...snapshot.val() });
-      }
-    });
-  });
+    const jsonRef = firebase.database().ref("okyanus");
 
-  const addOrEdit = (obj) => {
-    firebaseDb.child("Tutorials/").push(obj, (err) => {
-      if (err) {
-        console.log(err);
-      }
+    jsonRef.on("value", (snapshot) => {
+      setFullObjectList(snapshot.val());
     });
-  };
+  }, []);
+
   return (
     <div>
-      <Container>
-        <Jumbo />
-
-        <Row>
-          <Col>
-            <TutorialForm addOrEdit={addOrEdit} />
-          </Col>
-          <Col>
-            <TutorialsList tutorialObjects={tutorialObjects} />
-          </Col>
-        </Row>
-      </Container>
+      <List fullObjectList={fullObjectList} />
     </div>
   );
-}
+};
 
 export default App;
