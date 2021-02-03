@@ -8,7 +8,6 @@ const App = () => {
 
   useEffect(() => {
     const jsonRef = firebase.database().ref("okyanus");
-
     jsonRef.on("value", (snapshot) => {
       setFullObjectList(snapshot.val());
     });
