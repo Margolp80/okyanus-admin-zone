@@ -5,6 +5,8 @@ import FormDisplay from "../form/FormDisplay";
 
 const List = (props) => {
   var [currentList, setCurrentList] = useState();
+  var [listType, setListType] = useState();
+  var [listKeys, setListKeys] = useState();
 
   const printId = () => {
     //check if initialzation with firebase has accured
@@ -64,16 +66,34 @@ const List = (props) => {
         );
       }
       if (currentList != null && typeof currentList === "object") {
+        console.log("yes");
+        console.log("list type", listType);
         // the error is that when firebase values change it returnes a object and not an array..
-
+        if (Array.isArray(currentList) && listType === undefined) {
+          console.log("testttttt");
+          var obj = {};
+          for (let i = 0; i < currentList.length; i++) {
+            obj[i] = currentList[i];
+          }
+          console.log(obj);
+          currentList = obj;
+        }
         if (!Array.isArray(currentList)) {
           var newList = [];
+          var keys = [];
           for (const key in currentList) {
             newList.push(currentList[key]);
+            keys.push(key);
           }
+          console.log("the keys are: ", keys);
 
           setCurrentList(newList);
           currentList = newList;
+          setListType("Object");
+
+          setListKeys(keys);
+          listKeys = keys;
+          console.log(listKeys);
         }
 
         const listArray = currentList.map((element, num) => {
@@ -81,7 +101,7 @@ const List = (props) => {
             <ListGroup.Item
               variant="warning"
               style={{ cursor: "pointer" }}
-              key={num}
+              key={listKeys[num]}
             >
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <div
@@ -92,7 +112,7 @@ const List = (props) => {
                         ? currentList[num].children
                         : currentList[num].link
                     );
-                    props.handleSetPath(`${num}/children/`);
+                    props.handleSetPath(`${listKeys[num]}/children/`);
                   }}
                 >
                   {element.id}
@@ -105,7 +125,7 @@ const List = (props) => {
                     </Badge>{" "} */}
                     <Badge
                       onClick={() => {
-                        props.handleDelete(num);
+                        props.handleDelete(listKeys[num]);
                       }}
                       pill
                       variant="danger"
