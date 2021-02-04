@@ -6,7 +6,7 @@ const FormDisplay = (props) => {
   var [formObject, setFormObject] = useState({
     id: "",
     collapsed: "true",
-    children: [],
+    children: [{ id: "dummy", collapsed: true, children: [{ id: "test" }] }],
   });
 
   const handleSelectChange = (value) => {
@@ -93,10 +93,10 @@ const FormDisplay = (props) => {
                       handleSelectChange(e.target.value);
                     }}
                     as="select"
-                    defaultValue="Choose..."
+                    value={formState}
                   >
-                    <option>Tree</option>
-                    <option>Link</option>
+                    <option value="Tree">Tree</option>
+                    <option value="Link">Link</option>
                   </Form.Control>
                 </Form.Group>
               </Col>
@@ -104,7 +104,26 @@ const FormDisplay = (props) => {
             {checkFormState()}
           </Form>
           <div style={{ width: "60%", margin: "auto" }}>
-            <Button block variant="primary">
+            <Button
+              onClick={() => {
+                console.log("The from to be pushed is: ", formObject);
+                props.handlePush(formObject);
+                setFormState("Tree");
+                setFormObject({
+                  id: "",
+                  collapsed: "true",
+                  children: [
+                    {
+                      id: "dummy",
+                      collapsed: true,
+                      children: [{ id: "test" }],
+                    },
+                  ],
+                });
+              }}
+              block
+              variant="primary"
+            >
               <i className="fas fa-plus"></i>
             </Button>{" "}
           </div>

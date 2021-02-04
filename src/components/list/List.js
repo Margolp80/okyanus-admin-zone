@@ -20,7 +20,10 @@ const List = (props) => {
 
               <p style={{ textAlign: "center" }}>
                 <Button
-                  onClick={() => setCurrentList(props.fullObjectList.children)}
+                  onClick={() => {
+                    setCurrentList(props.fullObjectList.children);
+                    props.handleSetPath("children/");
+                  }}
                   variant="primary"
                 >
                   Admin Zone
@@ -60,29 +63,53 @@ const List = (props) => {
           </div>
         );
       }
-      if (currentList && typeof currentList === "object") {
+      if (currentList != null && typeof currentList === "object") {
+        // the error is that when firebase values change it returnes a object and not an array..
+
+        if (!Array.isArray(currentList)) {
+          var newList = [];
+          for (const key in currentList) {
+            newList.push(currentList[key]);
+          }
+
+          setCurrentList(newList);
+          currentList = newList;
+        }
+
         const listArray = currentList.map((element, num) => {
           return (
             <ListGroup.Item
               variant="warning"
               style={{ cursor: "pointer" }}
               key={num}
-              onClick={() =>
-                setCurrentList(
-                  currentList[num].children
-                    ? currentList[num].children
-                    : currentList[num].link
-                )
-              }
             >
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <div>{element.id}</div>
+                <div
+                  style={{ flexGrow: "10" }}
+                  onClick={() => {
+                    setCurrentList(
+                      currentList[num].children
+                        ? currentList[num].children
+                        : currentList[num].link
+                    );
+                    props.handleSetPath(`${num}/children/`);
+                  }}
+                >
+                  {element.id}
+                </div>
+
                 <div>
                   <span style={{ margin: "auto" }}>
-                    <Badge pill variant="success">
+                    {/* <Badge pill variant="success">
                       -----<i className="fas fa-pen-alt"></i>-----
-                    </Badge>{" "}
-                    <Badge pill variant="danger">
+                    </Badge>{" "} */}
+                    <Badge
+                      onClick={() => {
+                        props.handleDelete(num);
+                      }}
+                      pill
+                      variant="danger"
+                    >
                       -----<i className="fas fa-trash-alt"></i>-----
                     </Badge>{" "}
                   </span>
@@ -104,6 +131,7 @@ const List = (props) => {
   const displayForm = () => {
     return (
       <FormDisplay
+        handlePush={props.handlePush}
         fullObjectList={props.fullObjectList}
         currentList={currentList}
       />
@@ -119,6 +147,7 @@ const List = (props) => {
       <BreadCrumb
         fullObjectList={props.fullObjectList}
         changeCurrentList={changeCurrentList}
+        handleSetPath={props.handleSetPath}
       />
       {displayForm()}
       {printId()}
